@@ -3,12 +3,15 @@ package jm.task.core.jdbc.util;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import jm.task.core.jdbc.model.User;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-// Привat и сесион фактори
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Environment;
+import org.hibernate.service.ServiceRegistry;
 
 public class Util {
     /* реализуйте настройку соеденения с БД */
@@ -25,14 +28,23 @@ public class Util {
     static {
         try {
             Configuration configuration = new Configuration();
-            configuration.setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
-            configuration.setProperty("hibernate.connection.url", URL);
-            configuration.setProperty("hibernate.connection.username", USER);
-            configuration.setProperty("hibernate.connection.password", PASSWORD);
-            configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-            configuration.setProperty("hibernate.hbm2ddl.auto", "update");
+            Properties settings = new Properties();
+            settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
+            settings.put(Environment.URL, URL);
+            settings.put(Environment.USER, USER);
+            settings.put(Environment.PASS, PASSWORD);
+            settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL8Dialect"); //MySQL 8
+            settings.put(Environment.SHOW_SQL, "true"); //Отображения SQL-запросов
+            settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+            settings.put(Environment.HBM2DDL_AUTO, "create-drop"); // create-drop для тестов
+
+            configuration.setProperties(settings);
             configuration.addAnnotatedClass(User.class);
-            sessionFactory = configuration.buildSessionFactory();
+
+            ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                    .applySettings(configuration.getProperties()).build();
+            sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+
         } catch (Throwable ex) {
             throw new ExceptionInInitializerError(ex);
         }
