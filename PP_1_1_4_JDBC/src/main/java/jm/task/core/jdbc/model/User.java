@@ -1,22 +1,29 @@
 package jm.task.core.jdbc.model;
 
+import javax.persistence.*;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Table
+@Entity
+@Table(name = "users") // Имя таблицы
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Генерация идентификатора
     private Long id;
 
-    @Column
+    @Column(name = "name")
     private String name;
 
-    @Column
+    @Column(name = "lastName")
     private String lastName;
 
-    @Column
+    @Column(name = "age")
     private Byte age;
+
+    // Конструктор без параметров
+    public User() {
+    }
 
     // Конструктор для создания пользователя со всеми полями
 
